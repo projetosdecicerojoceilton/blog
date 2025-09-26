@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rotação de Iframes</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="myIframe"></iframe>
+
+  <script>
+    // Lista de URLs para exibir
+    const urls = [
+      "https://criativook.com/culinaria/creme-belga-caseiro-uma-receita-deliciosa-para-transformar-suas-sobremesas/",
+      "https://otieu.com/4/9891375",
+      "https://monetag.com/?ref_id=nBIZ"
+    ];
+
+    const STORAGE_KEY = "iframeRotation";
+
+    function getNextUrl() {
+      let data = localStorage.getItem(STORAGE_KEY);
+      let currentIndex = 0;
+      let lastShown = 0;
+
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          currentIndex = parsed.index;
+          lastShown = parsed.timestamp;
+        } catch (e) {
+          console.warn("Erro ao ler storage:", e);
+        }
+      }
+
+      const now = Date.now();
+      const threeDays = 3 * 24 * 60 * 60 * 1000;
+
+      // Se passaram mais de 3 dias, resetar para a primeira URL
+      if (now - lastShown > threeDays) {
+        currentIndex = 0;
+      } else {
+        // Caso contrário, mostrar próxima URL
+        currentIndex = (currentIndex + 1) % urls.length;
+      }
+
+      // Salvar novo estado
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        index: currentIndex,
+        timestamp: now
+      }));
+
+      return urls[currentIndex];
+    }
+
+    document.getElementById("myIframe").src = getNextUrl();
+  </script>
+</body>
+</html>
